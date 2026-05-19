@@ -10,7 +10,6 @@ import ru.mephi.vikingdemo.model.EquipmentItemEntity;
 import ru.mephi.vikingdemo.model.Viking;
 import ru.mephi.vikingdemo.model.VikingEntity;
 
-
 @Repository
 public class VikingStorage {
 
@@ -33,13 +32,11 @@ public class VikingStorage {
         Integer vikingId = vikingRepository.save(
                 vikingMapper.toVikingEntity(viking)
         );
-
         for (EquipmentItem item : viking.equipment()) {
             equipmentItemRepository.save(
                     vikingMapper.toEquipmentItemEntity(vikingId, item)
             );
         }
-
         return viking;
     }
 
@@ -60,6 +57,22 @@ public class VikingStorage {
 
     @Transactional
     public void deleteById(int id) {
+        // equipment_items удалятся каскадно
         vikingRepository.deleteById(id);
+    }
+
+    // перезапись поля + снаряжение викинга
+    @Transactional
+    public Viking update(int id, Viking viking) {
+        VikingEntity entity = vikingMapper.toVikingEntity(viking);
+        vikingRepository.update(id, entity);
+
+        equipmentItemRepository.deleteByVikingId(id);
+        for (EquipmentItem item : viking.equipment()) {
+            equipmentItemRepository.save(
+                    vikingMapper.toEquipmentItemEntity(id, item)
+            );
+        }
+        return viking;
     }
 }
