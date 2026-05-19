@@ -40,7 +40,6 @@ public class VikingRepository {
                 from vikings
                 order by id
                 """;
-
         return jdbcTemplate.query(sql, vikingRowMapper);
     }
 
@@ -50,9 +49,7 @@ public class VikingRepository {
                 from vikings
                 where id = ?
                 """;
-
         List<VikingEntity> result = jdbcTemplate.query(sql, vikingRowMapper, id);
-
         return result.stream().findFirst();
     }
 
@@ -69,24 +66,38 @@ public class VikingRepository {
                     sql,
                     Statement.RETURN_GENERATED_KEYS
             );
-
             ps.setString(1, viking.name());
             ps.setInt(2, viking.age());
             ps.setInt(3, viking.heightCm());
             ps.setString(4, viking.hairColor().name());
             ps.setString(5, viking.beardStyle().name());
             ps.setString(6, viking.description());
-
             return ps;
         }, keyHolder);
 
         Number key = keyHolder.getKey();
-
         if (key == null) {
             throw new IllegalStateException("Не удалось получить id созданного викинга");
         }
-
         return key.intValue();
+    }
+
+    // перезапись поля существующего викинга
+    public void update(int id, VikingEntity viking) {
+        String sql = """
+                update vikings
+                set name = ?, age = ?, height_cm = ?, hair_color = ?, beard_style = ?, description = ?
+                where id = ?
+                """;
+        jdbcTemplate.update(sql,
+                viking.name(),
+                viking.age(),
+                viking.heightCm(),
+                viking.hairColor().name(),
+                viking.beardStyle().name(),
+                viking.description(),
+                id
+        );
     }
 
     public void deleteById(int id) {
