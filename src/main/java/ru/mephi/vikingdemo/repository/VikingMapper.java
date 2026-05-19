@@ -13,7 +13,7 @@ public class VikingMapper {
 
     public VikingEntity toVikingEntity(Viking viking) {
         return new VikingEntity(
-                null,
+                viking.id(),       // теперь берём id из Viking
                 viking.name(),
                 viking.age(),
                 viking.heightCm(),
@@ -45,6 +45,7 @@ public class VikingMapper {
                 .toList();
 
         return new Viking(
+                entity.id(),       // пробрасываем id из БД в Viking
                 entity.name(),
                 entity.age(),
                 entity.heightCm(),

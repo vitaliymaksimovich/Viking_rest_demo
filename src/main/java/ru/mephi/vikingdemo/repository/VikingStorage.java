@@ -29,15 +29,27 @@ public class VikingStorage {
 
     @Transactional
     public Viking save(Viking viking) {
+        // БД генерирует id, получаем его обратно
         Integer vikingId = vikingRepository.save(
                 vikingMapper.toVikingEntity(viking)
         );
+
         for (EquipmentItem item : viking.equipment()) {
             equipmentItemRepository.save(
                     vikingMapper.toEquipmentItemEntity(vikingId, item)
             );
         }
-        return viking;
+
+        // возвращаем Viking уже с проставленным id
+        return new Viking(
+                vikingId,
+                viking.name(),
+                viking.age(),
+                viking.heightCm(),
+                viking.hairColor(),
+                viking.beardStyle(),
+                viking.equipment()
+        );
     }
 
     public List<Viking> findAll() {
@@ -57,11 +69,9 @@ public class VikingStorage {
 
     @Transactional
     public void deleteById(int id) {
-        // equipment_items удалятся каскадно
         vikingRepository.deleteById(id);
     }
 
-    // перезапись поля + снаряжение викинга
     @Transactional
     public Viking update(int id, Viking viking) {
         VikingEntity entity = vikingMapper.toVikingEntity(viking);
@@ -73,6 +83,14 @@ public class VikingStorage {
                     vikingMapper.toEquipmentItemEntity(id, item)
             );
         }
-        return viking;
+        return new Viking(
+                id,
+                viking.name(),
+                viking.age(),
+                viking.heightCm(),
+                viking.hairColor(),
+                viking.beardStyle(),
+                viking.equipment()
+        );
     }
 }

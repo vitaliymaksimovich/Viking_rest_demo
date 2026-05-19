@@ -10,11 +10,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
-
 
 public class VikingDesktopFrame extends JFrame {
 
@@ -44,22 +44,28 @@ public class VikingDesktopFrame extends JFrame {
         JPanel bottomPanel = new JPanel();
         bottomPanel.add(createButton);
         add(bottomPanel, BorderLayout.SOUTH);
-        
+
         onInit();
+
+        // подписываемся: при любом изменении в сервисе — обновить таблицу
+        vikingService.addChangeListener(() ->
+                SwingUtilities.invokeLater(() ->
+                        tableModel.refresh(vikingService.findAll())
+                )
+        );
     }
 
     private void onCreateViking() {
-        Viking viking = vikingService.createRandomViking();
-        tableModel.addViking(viking);
+        vikingService.createRandomViking();
     }
-    
-    public void addNewViking(Viking viking){
+
+    public void addNewViking(Viking viking) {
         tableModel.addViking(viking);
     }
 
     private void onInit() {
         List<Viking> all = vikingService.findAll();
-        if (!all.isEmpty()){
+        if (!all.isEmpty()) {
             for (Viking viking : all) {
                 tableModel.addViking(viking);
             }
